@@ -4,6 +4,8 @@ import type React from "react";
 
 import { useState, useEffect } from "react";
 import { Send, FileUp } from "lucide-react";
+import transporter from "@/mailer";
+import { testMailer } from "../action/testmail";
 
 interface Employee {
   id: string;
@@ -103,7 +105,8 @@ export default function EmailDispatch() {
 
   return (
     <div className="space-y-6">
-      {/* Compose Email Card */}
+      <button onClick={testMailer}>SEND TEST MAIL</button>
+
       <div className="bg-white rounded-2xl shadow-lg p-8 border-2 border-cyan-200">
         <div className="flex items-center gap-3 mb-6">
           <div className="bg-cyan-100 p-3 rounded-lg">
@@ -211,7 +214,6 @@ export default function EmailDispatch() {
         </div>
       </div>
 
-      {/* Recipients Preview Card */}
       <div className="bg-white rounded-2xl shadow-lg p-8 border-2 border-rose-200">
         <h2 className="text-2xl font-bold text-slate-800 mb-2">Recipients</h2>
         <p className="text-slate-500 mb-6">

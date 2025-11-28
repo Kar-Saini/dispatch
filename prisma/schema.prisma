@@ -13,47 +13,46 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-model Employee{
-  id String @id @unique
-  name String
-  email String @unique
-  designation String
-  email_verified Boolean @default(false)
-  phone_num String
-  bank String
-  bank_acc_num String
-  bank_ifsc String
-  pan_num String
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now())
+model Employee {
+  id             String       @id @unique @default(cuid())
+  name           String
+  email          String       @unique
+  designation    String
+  email_verified Boolean      @default(false)
+  phone_num      String
+  bank           String
+  bank_acc_num   String
+  bank_ifsc      String
+  pan_num        String
+  created_at     DateTime     @default(now())
+  updated_at     DateTime     @default(now())
+  payslips       PayslipLog[]
 }
 
-model Admin{
-  id String @id 
-  name String
-  password String
-  email String @unique
-  created_at DateTime @default(now())
+model Admin {
+  id         String    @id @default(cuid())
+  name       String
+  password   String
+  email      String    @unique
+  created_at DateTime  @default(now())
   created_by String
-  admin AdminType
-
+  admin      AdminType
 }
-enum AdminType{
+
+enum AdminType {
   Admin
   SuperAdmin
 }
 
-
 model PayslipLog {
-  id        String   @id @default(cuid())
-  employee  Employee @relation(fields: [employeeId], references: [id])
+  id         String      @id @default(cuid())
+  employee   Employee    @relation(fields: [employeeId], references: [id])
   employeeId String
-  month     Int
-  year      Int
-  status    EmailStatus @default(PENDING)
-  message   String?    
-  created_at DateTime @default(now())
+  month      Int
+  year       Int
+  status     EmailStatus @default(PENDING)
+  message    String?
+  created_at DateTime    @default(now())
 }
 
 enum EmailStatus {
