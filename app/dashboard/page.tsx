@@ -9,33 +9,32 @@ import EmailDispatch from "../components/email-dispatch";
 import EmailHistory from "../components/email-history";
 
 type TabValue = "employees" | "dispatch" | "history";
-
+interface Tab {
+  value: TabValue;
+  label: string;
+  icon: React.ReactNode;
+}
+//@ts-ignore
+const TAB: Tab[] = [
+  {
+    value: "employees",
+    label: "Employees",
+    icon: <Users className="w-4 h-4" />,
+  },
+  {
+    value: "dispatch",
+    label: "Dispatch",
+    icon: <Mail className="w-4 h-4" />,
+  },
+  ,
+  {
+    value: "history",
+    label: "History",
+    icon: <History className="w-4 h-4" />,
+  },
+];
 export default function Home() {
-  const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<TabValue>("employees");
-
-  useEffect(() => {
-    // setMounted(true);
-  }, []);
-
-  const tabs: { value: TabValue; label: string; icon: React.ReactNode }[] = [
-    {
-      value: "employees",
-      label: "Employees",
-      icon: <Users className="w-4 h-4" />,
-    },
-    {
-      value: "dispatch",
-      label: "Dispatch",
-      icon: <Mail className="w-4 h-4" />,
-    },
-    ,
-    {
-      value: "history",
-      label: "History",
-      icon: <History className="w-4 h-4" />,
-    },
-  ];
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
@@ -47,7 +46,7 @@ export default function Home() {
 
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex gap-4 mb-4">
-          {tabs.map((tab) => (
+          {TAB.map((tab) => (
             <button
               key={tab.value}
               onClick={() => setActiveTab(tab.value)}
