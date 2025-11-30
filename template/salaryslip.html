@@ -9,13 +9,13 @@
         color: #333;
       }
 
-      .header {
-        font-size: 22px;
+      .company-header {
+        font-size: 24px;
         font-weight: bold;
-        color: #0077aa;
+        color: #0090d2;
       }
 
-      .subheader {
+      .company-address {
         font-size: 14px;
         margin-bottom: 20px;
       }
@@ -24,27 +24,59 @@
         width: 100%;
         border-collapse: collapse;
         margin-top: 15px;
+        border: 1px solid #ddd;
       }
 
-      table td,
-      table th {
-        padding: 8px;
-        border: 1px solid #ccc;
+      th,
+      td {
+        padding: 10px;
         font-size: 14px;
+        border: 1px solid #ccc;
+      }
+
+      .title-row {
+        text-align: center;
+        font-weight: bold;
+        font-size: 18px;
+        padding: 10px 0;
       }
 
       .right {
         text-align: right;
       }
 
+      .netpay-number {
+        color: #00a040;
+        font-size: 26px;
+        font-weight: bold;
+      }
+
       .netpay-box {
         text-align: center;
         padding: 20px;
-        border: 1px dashed #33aa55;
+        border: 2px dashed #00a85a;
         margin-top: 25px;
-        font-size: 18px;
+        font-size: 17px;
         color: #0a8f42;
         font-weight: bold;
+      }
+      .detail-row {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center; /* vertically center everything */
+        margin-bottom: 6px;
+      }
+
+      .colon {
+        text-align: center;
+        width: 20px; /* keeps colon stable */
+        font-weight: bold;
+      }
+
+      .label,
+      .value {
+        display: flex;
+        align-items: center;
       }
 
       .note {
@@ -55,18 +87,17 @@
         color: #777;
       }
 
-      .title-row {
-        text-align: center;
-        padding: 10px 0;
+      .section-title {
         font-weight: bold;
-        font-size: 18px;
+        font-size: 15px;
+        margin-bottom: 5px;
       }
     </style>
   </head>
 
   <body>
-    <div class="header">GOA OCEANARIUM PRIVATE LIMITED</div>
-    <div class="subheader">
+    <div class="company-header">GOA OCEANARIUM PRIVATE LIMITED</div>
+    <div class="company-address">
       H. No. 78, Malbhat, Margao, South Goa, Goa 403601
     </div>
 
@@ -79,23 +110,93 @@
 
       <tr>
         <td>
-          <strong>EMPLOYEE SUMMARY</strong><br /><br />
-          <b>Employee Name:</b> {{employee_name}}<br />
-          <b>Employee ID:</b> {{employee_id}}<br />
-          <b>Designation:</b> {{designation}}<br />
-          <b>Pay Period:</b> {{month}} {{year}}<br />
-          <b>Pay Date:</b> {{pay_date}}<br />
-          <b>PAN:</b> {{pan}}<br />
-          <b>Bank:</b> {{bank}}<br />
-          <b>Bank A/C Number:</b> {{account_no}}<br />
-          <b>Bank IFSC:</b> {{ifsc}}<br />
+          <div class="section-title">EMPLOYEE SUMMARY</div>
+          <br />
+
+          <div class="detail-row">
+            <div class="label"><b>Employee Name</b></div>
+            <div class="colon">:</div>
+            <div class="value">{{employee_name}}</div>
+          </div>
+          <div class="detail-row">
+            <div class="label"><b>Employee ID</b></div>
+            <div class="colon">:</div>
+            <div class="value">{{employee_id}}</div>
+          </div>
+          <div class="detail-row">
+            <div class="label"><b>Designation</b></div>
+            <div class="colon">:</div>
+            <div class="value">{{designation}}</div>
+          </div>
+          <div class="detail-row">
+            <div class="label"><b>Employee ID</b></div>
+            <div class="colon">:</div>
+            <div class="value">{{employee_id}}</div>
+          </div>
+          <div class="detail-row">
+            <div class="label"><b>Pay Period</b></div>
+            <div class="colon">:</div>
+            <div class="value">{{month}} {{year}}</div>
+          </div>
+          <div class="detail-row">
+            <div class="label"><b>Pay Date</b></div>
+            <div class="colon">:</div>
+            <div class="value">{{pay_date}}</div>
+          </div>
         </td>
 
         <td class="right">
           <strong>Total Net Pay</strong><br />
-          <span style="color: green; font-size: 24px">Rs. {{net_pay}}</span
-          ><br /><br />
+          <span class="netpay-number">Rs. {{net_pay}}</span><br /><br />
           Paid Days: {{paid_days}} | LOP Days: {{lop_days}}
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" class="title-row">
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              font-size: 14px;
+              margin-bottom: px;
+              padding: 10px;
+              gap: 8px;
+            "
+          >
+            <!-- Row 1 -->
+            <div
+              style="display: flex; justify-content: space-between; width: 100%"
+            >
+              <div class="detail-row" style="display: flex; gap: 6px">
+                <div class="label"><b>PAN</b></div>
+                <div class="colon">:</div>
+                <div class="value">{{pan}}</div>
+              </div>
+
+              <div class="detail-row" style="display: flex; gap: 6px">
+                <div class="label"><b>Bank</b></div>
+                <div class="colon">:</div>
+                <div class="value">{{bank}}</div>
+              </div>
+            </div>
+
+            <!-- Row 2 -->
+            <div
+              style="display: flex; justify-content: space-between; width: 100%"
+            >
+              <div class="detail-row" style="display: flex; gap: 6px">
+                <div class="label"><b>Bank A/C Number</b></div>
+                <div class="colon">:</div>
+                <div class="value">{{account_no}}</div>
+              </div>
+
+              <div class="detail-row" style="display: flex; gap: 6px">
+                <div class="label"><b>Bank IFSC</b></div>
+                <div class="colon">:</div>
+                <div class="value">{{ifsc}}</div>
+              </div>
+            </div>
+          </div>
         </td>
       </tr>
     </table>
@@ -138,14 +239,10 @@
     </table>
 
     <div class="netpay-box">
-      Total Net Payable Rs. {{net_pay}}
-      <br />
+      Total Net Payable Rs. {{net_pay}}<br />
       ({{net_pay_words}})
     </div>
 
-    <div class="note">
-      **Total Net Payable = Gross Earnings - Total Deductions**<br />
-      --This is a system-generated document.--
-    </div>
+    <div class="note">--This is a system-generated document.--</div>
   </body>
 </html>

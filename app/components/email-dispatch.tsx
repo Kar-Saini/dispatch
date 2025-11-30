@@ -1,18 +1,10 @@
 "use client";
 
 import type React from "react";
-
 import { useState, useEffect } from "react";
-import { Send, FileUp } from "lucide-react";
-import transporter from "@/mailer";
-import { testMailer } from "../action/testmail";
-
-interface Employee {
-  id: string;
-  name: string;
-  email: string;
-  department: string;
-}
+import { Send, LoaderIcon } from "lucide-react";
+import { useGetEmployees } from "../hooks/useGetEmployees";
+import { sendSalaryEmail } from "../action/sendEmail";
 
 interface EmailDispatchData {
   id: string;
@@ -24,186 +16,132 @@ interface EmailDispatchData {
 }
 
 export default function EmailDispatch() {
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [subject, setSubject] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
-  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
-  const [attachmentName, setAttachmentName] = useState("");
-  const [departments, setDepartments] = useState<string[]>([]);
+  const { employees, error, loading } = useGetEmployees();
+
+  const [subject, setSubject] = useState("Salary Slip -");
   const [sending, setSending] = useState(false);
+  const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
+
+  const [monthAndYear, setMonthAndYear] = useState({
+    month: new Date().toLocaleString("default", { month: "long" }),
+    year: new Date().toLocaleString("default", { year: "numeric" }),
+  });
+
+  async function handleEmailSend() {
+    try {
+      const res = await sendSalaryEmail({
+        employeeEmails: selectedRecipients,
+        monthAndYear,
+        subject,
+      });
+      console.log(res);
+    } catch (error) {}
+  }
 
   useEffect(() => {
-    const saved = localStorage.getItem("employees");
-    if (saved) {
-      const parsedEmployees = JSON.parse(saved);
-      setEmployees(parsedEmployees);
-
-      const uniqueDepts = Array.from(
-        new Set(parsedEmployees.map((e: Employee) => e.department))
-      );
-      setDepartments(uniqueDepts as string[]);
-    }
-  }, []);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setAttachmentFile(file);
-      setAttachmentName(file.name);
-    }
-  };
-
-  const getRecipients = () => {
-    if (selectedDepartment === "all") {
-      return employees;
-    }
-    return employees.filter((emp) => emp.department === selectedDepartment);
-  };
-
-  const handleSendEmail = () => {
-    if (!subject.trim()) {
-      alert("Please enter an email subject");
-      return;
-    }
-
-    const recipients = getRecipients();
-    if (recipients.length === 0) {
-      alert("No employees selected");
-      return;
-    }
-
-    setSending(true);
-
-    setTimeout(() => {
-      const emailData: EmailDispatchData = {
-        id: Date.now().toString(),
-        subject,
-        recipients: recipients.map((r) => r.email),
-        recipientCount: recipients.length,
-        attachmentName: attachmentFile ? attachmentName : undefined,
-        timestamp: Date.now(),
-      };
-
-      const existingHistory = localStorage.getItem("emailHistory");
-      const history = existingHistory ? JSON.parse(existingHistory) : [];
-      history.unshift(emailData);
-      localStorage.setItem(
-        "emailHistory",
-        JSON.stringify(history.slice(0, 50))
-      );
-
-      setSending(false);
-      setSubject("");
-      setAttachmentFile(null);
-      setAttachmentName("");
-      setSelectedDepartment("all");
-      alert(`Email sent to ${recipients.length} recipient(s)!`);
-    }, 1000);
-  };
-
-  const recipients = getRecipients();
+    setSubject(`Salary Slip - ${monthAndYear.month} ${monthAndYear.year}`);
+  }, [monthAndYear]);
 
   return (
-    <div className="space-y-6">
-      <button onClick={testMailer}>SEND TEST MAIL</button>
-
-      <div className="bg-white rounded-2xl shadow-lg p-8 border-2 border-cyan-200">
+    <div>
+      <div className="bg-white rounded-2xl shadow-lg p-6 border-2 border-cyan-200">
         <div className="flex items-center gap-3 mb-6">
           <div className="bg-cyan-100 p-3 rounded-lg">
             <Send className="w-6 h-6 text-cyan-600" />
           </div>
-          <div>
-            <h2 className="text-2xl font-bold text-slate-800">Send Email</h2>
-            <p className="text-slate-500">
-              Compose and send emails to employees with optional PDF attachment
-            </p>
-          </div>
+          <h2 className="text-2xl font-bold text-slate-800">Send Email</h2>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-8">
           <div>
-            <label className="block text-sm font-semibold text-slate-800 mb-3">
-              Select Recipients by Department
+            <label className="block text-xl font-semibold text-slate-800 mb-3">
+              Recipients
             </label>
-            <select
-              value={selectedDepartment}
-              onChange={(e) => setSelectedDepartment(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-cyan-200 rounded-lg focus:outline-none focus:border-cyan-500 transition-colors bg-white"
-            >
-              <option value="all">All Employees</option>
-              {departments.map((dept) => (
-                <option key={dept} value={dept}>
-                  {dept}
-                </option>
-              ))}
-            </select>
+
+            {loading ? (
+              <div className="w-full flex justify-center py-6">
+                <LoaderIcon className="animate-spin" />
+              </div>
+            ) : (
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="mb-3">
+                    <input
+                      type="checkbox"
+                      id="select-all"
+                      checked={
+                        employees.length > 0 &&
+                        selectedRecipients.length === employees.length
+                      }
+                      onChange={(e) => {
+                        setSelectedRecipients(
+                          e.target.checked ? employees.map((e) => e.email) : []
+                        );
+                      }}
+                    />
+                    <label
+                      htmlFor="select-all"
+                      className="ml-2 font-bold cursor-pointer"
+                    >
+                      Select All
+                    </label>
+                  </div>
+                  <div className="grid grid-cols-2">
+                    {employees.map((employee) => (
+                      <div key={employee.id} className="mb-1">
+                        <input
+                          type="checkbox"
+                          id={employee.email}
+                          checked={selectedRecipients.includes(employee.email)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedRecipients((prev) => [
+                                ...prev,
+                                employee.email,
+                              ]);
+                            } else {
+                              setSelectedRecipients((prev) =>
+                                prev.filter((email) => email !== employee.email)
+                              );
+                            }
+                          }}
+                        />
+                        <label
+                          htmlFor={employee.email}
+                          className="ml-2 cursor-pointer"
+                        >
+                          {employee.name}, {employee.email}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-slate-800 mb-3">
-              Email Subject
-            </label>
-            <input
-              placeholder="Enter email subject"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-cyan-200 rounded-lg focus:outline-none focus:border-cyan-500 transition-colors"
+          <div className="flex gap-6">
+            <div className="flex-1">
+              <label className="block text-sm font-semibold text-slate-800 mb-3">
+                Email Subject
+              </label>
+              <input
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-cyan-200 rounded-lg focus:outline-none focus:border-cyan-500 transition-colors"
+              />
+            </div>
+
+            <MiniCalendar
+              monthAndYear={monthAndYear}
+              setMonthAndYear={setMonthAndYear}
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-slate-800 mb-3">
-              Attach PDF (Optional)
-            </label>
-            <div className="flex items-center gap-2">
-              <label className="flex-1 flex items-center justify-center px-4 py-3 border-2 border-dashed border-cyan-300 rounded-lg cursor-pointer hover:bg-cyan-50 transition-colors">
-                <div className="flex items-center gap-2 text-slate-600">
-                  <FileUp className="w-5 h-5" />
-                  <span>Choose PDF file</span>
-                </div>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-              </label>
-              {attachmentFile && (
-                <span className="text-sm font-semibold text-green-600 bg-green-50 px-3 py-2 rounded-lg whitespace-nowrap">
-                  ✓ {attachmentName}
-                </span>
-              )}
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 p-6 rounded-xl border-2 border-cyan-300">
-            <p className="text-sm font-bold text-slate-800 mb-4">
-              Email Preview
-            </p>
-            <div className="space-y-3 text-sm">
-              <p className="text-slate-700">
-                <span className="font-bold text-slate-900">To:</span>{" "}
-                {recipients.length} recipient
-                {recipients.length !== 1 ? "s" : ""}
-              </p>
-              <p className="text-slate-700">
-                <span className="font-bold text-slate-900">Subject:</span>{" "}
-                {subject || <em className="text-slate-400">(empty)</em>}
-              </p>
-              {attachmentFile && (
-                <p className="text-slate-700">
-                  <span className="font-bold text-slate-900">Attachment:</span>{" "}
-                  {attachmentName}
-                </p>
-              )}
-            </div>
-          </div>
-
           <button
-            onClick={handleSendEmail}
-            disabled={sending || recipients.length === 0}
+            onClick={handleEmailSend}
             className={`w-full py-4 font-bold text-lg rounded-xl flex items-center justify-center gap-2 transition-all duration-200 ${
-              sending || recipients.length === 0
+              sending
                 ? "bg-slate-300 text-slate-500 cursor-not-allowed"
                 : "bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl"
             }`}
@@ -213,34 +151,55 @@ export default function EmailDispatch() {
           </button>
         </div>
       </div>
+    </div>
+  );
+}
 
-      <div className="bg-white rounded-2xl shadow-lg p-8 border-2 border-rose-200">
-        <h2 className="text-2xl font-bold text-slate-800 mb-2">Recipients</h2>
-        <p className="text-slate-500 mb-6">
-          {selectedDepartment === "all"
-            ? `Showing all ${recipients.length} employees`
-            : `Showing ${recipients.length} employees from ${selectedDepartment}`}
-        </p>
+function MiniCalendar({
+  monthAndYear,
+  setMonthAndYear,
+}: {
+  monthAndYear: { month: string; year: string };
+  setMonthAndYear: ({ month, year }: { month: string; year: string }) => void;
+}) {
+  const [date, setDate] = useState(new Date());
 
-        {recipients.length === 0 ? (
-          <p className="text-slate-400 text-center py-12">
-            No employees to send to
-          </p>
-        ) : (
-          <div className="space-y-3 max-h-96 overflow-y-auto">
-            {recipients.map((emp) => (
-              <div
-                key={emp.id}
-                className="flex items-center justify-between p-4 bg-gradient-to-r from-rose-50 to-pink-50 border-2 border-rose-200 rounded-xl hover:shadow-md transition-all duration-200"
-              >
-                <div>
-                  <p className="font-semibold text-slate-800">{emp.name}</p>
-                  <p className="text-sm text-slate-500">{emp.email}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+  const updateMonth = (newDate: Date) => {
+    setDate(newDate);
+    setMonthAndYear({
+      month: newDate.toLocaleString("default", { month: "long" }),
+      year: newDate.getFullYear().toString(),
+    });
+  };
+
+  const nextMonth = () => {
+    updateMonth(new Date(date.getFullYear(), date.getMonth() + 1, 1));
+  };
+
+  const prevMonth = () => {
+    updateMonth(new Date(date.getFullYear(), date.getMonth() - 1, 1));
+  };
+
+  return (
+    <div className="ml-4 flex-1 flex justify-end items-end ">
+      <div className="px-4 py-3 border-2 border-cyan-200 rounded-lg bg-slate-50 flex items-center gap-3 shadow-sm">
+        <button
+          onClick={prevMonth}
+          className="px-2 py-1 text-sm bg-slate-200 rounded-md hover:bg-slate-300"
+        >
+          ◀
+        </button>
+
+        <span className="font-semibold whitespace-nowrap">
+          {monthAndYear.month} {monthAndYear.year}
+        </span>
+
+        <button
+          onClick={nextMonth}
+          className="px-2 py-1 text-sm bg-slate-200 rounded-md hover:bg-slate-300"
+        >
+          ▶
+        </button>
       </div>
     </div>
   );

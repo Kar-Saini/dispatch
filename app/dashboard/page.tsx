@@ -25,14 +25,15 @@ export default function Home() {
       icon: <Users className="w-4 h-4" />,
     },
     {
-      value: "history",
-      label: "History",
-      icon: <History className="w-4 h-4" />,
-    },
-    {
       value: "dispatch",
       label: "Dispatch",
       icon: <Mail className="w-4 h-4" />,
+    },
+    ,
+    {
+      value: "history",
+      label: "History",
+      icon: <History className="w-4 h-4" />,
     },
   ];
 
