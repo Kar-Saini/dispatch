@@ -24,6 +24,7 @@ export async function POST(req: Request) {
       name: admin.name,
     });
   } catch (error) {
-    return NextResponse.error();
+    console.log(error);
+    return NextResponse.json({ message: "Error" });
   }
 }
