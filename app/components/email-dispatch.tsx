@@ -18,7 +18,6 @@ interface EmailDispatchData {
 
 export default function EmailDispatch() {
   const { employees, error, loading } = useGetEmployees();
-
   const [subject, setSubject] = useState("Salary Slip -");
   const [sending, setSending] = useState(false);
   const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
@@ -30,6 +29,7 @@ export default function EmailDispatch() {
 
   async function handleEmailSend() {
     try {
+      setSending(true);
       const res = await sendSalaryEmail({
         employeeEmails: selectedRecipients,
         monthAndYear,
@@ -43,7 +43,11 @@ export default function EmailDispatch() {
           accepted: res?.accepted,
         })
       );
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setSending(false);
+    }
   }
 
   useEffect(() => {
@@ -154,8 +158,11 @@ export default function EmailDispatch() {
                 : "bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl"
             }`}
           >
-            <Send className="w-5 h-5" />
-            {sending ? "Sending..." : "Send Email"}
+            {sending ? (
+              <LoaderIcon className="animate-spin" />
+            ) : (
+              <Send className="w-5 h-5">Send Email</Send>
+            )}
           </button>
         </div>
       </div>
