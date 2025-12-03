@@ -2,19 +2,17 @@
 
 import type React from "react";
 
-import { useState, useEffect } from "react";
-import { Users, Lock, Mail, History } from "lucide-react";
+import { useState } from "react";
+import { Users, Mail, History } from "lucide-react";
 import EmployeeManagement from "./components/employee-management";
 import EmailDispatch from "./components/email-dispatch";
 import EmailHistory from "./components/email-history";
 
-type TabValue = "employees" | "dispatch" | "history";
 interface Tab {
-  value: TabValue;
+  value: string;
   label: string;
   icon: React.ReactNode;
 }
-//@ts-ignore
 const TAB: Tab[] = [
   {
     value: "employees",
@@ -32,9 +30,9 @@ const TAB: Tab[] = [
     label: "History",
     icon: <History className="w-4 h-4" />,
   },
-];
+] as Tab[];
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<TabValue>("employees");
+  const [activeTab, setActiveTab] = useState<string>("employees");
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">

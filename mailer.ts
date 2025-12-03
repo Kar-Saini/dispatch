@@ -1,4 +1,3 @@
-import { Trash } from "lucide-react";
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
