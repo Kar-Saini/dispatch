@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { Send, LoaderIcon } from "lucide-react";
 import { useGetEmployees } from "../hooks/useGetEmployees";
 import { sendSalaryEmail } from "../action/sendEmail";
+import toast from "react-hot-toast";
 
 interface EmailDispatchData {
   id: string;
@@ -35,6 +36,13 @@ export default function EmailDispatch() {
         subject,
       });
       console.log(res);
+      toast.success(
+        JSON.stringify({
+          messageId: res?.messageId,
+          envelope: res?.envelope,
+          accepted: res?.accepted,
+        })
+      );
     } catch (error) {}
   }
 

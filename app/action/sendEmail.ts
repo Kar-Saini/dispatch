@@ -37,12 +37,13 @@ export async function sendSalaryEmail({
 
       const pdfBuffer = await generateSalarySlipPDF(slipData, browser);
 
-      await sendEmailWithAttachment({
+      const info = await sendEmailWithAttachment({
         employee,
         monthAndYear,
         subject,
         pdfBuffer,
       });
+      return info;
     }
   } finally {
     await browser.close();
@@ -70,7 +71,6 @@ function getSalarySlipData(
     account_no: employee.bank_acc_num,
     ifsc: employee.bank_ifsc,
 
-    // spread salary constants (numbers → kept but stringified later)
     ...SALARY_CONSTANTS,
   };
 }
