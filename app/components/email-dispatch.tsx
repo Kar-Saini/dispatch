@@ -28,6 +28,10 @@ export default function EmailDispatch() {
   });
 
   async function handleEmailSend() {
+    if (selectedRecipients.length === 0) {
+      toast.error("Select Recipeints");
+      return;
+    }
     try {
       setSending(true);
       const res = await sendSalaryEmail({
